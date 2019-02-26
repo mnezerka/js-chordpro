@@ -1,4 +1,4 @@
-import {NodeVerse, NodeRow, NodeChord} from './ChordPro';
+import {NodeVerse, NodeRow, NodeChord} from './parser';
 
 export function transpose(song, step) {
 

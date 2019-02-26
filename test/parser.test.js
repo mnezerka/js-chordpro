@@ -1,4 +1,4 @@
-import {tokenize, parse, NodeChord, NodeChorus, NodeRow, NodeVerse} from './ChordPro';
+import {tokenize, parse, NodeChord, NodeChorus, NodeRow, NodeVerse} from '../src/parser';
 
 describe('ChordPro Tokenizer', function() {
 

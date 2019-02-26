@@ -15,5 +15,14 @@
   "bugs": {
     "url": "https://github.com/bluechords/js-chordpro/issues"
   },
-  "homepage": "https://github.com/bluechords/js-chordpro#readme"
+  "homepage": "https://github.com/bluechords/js-chordpro#readme",
+  "devDependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "babel-jest": "^24.1.0",
+    "jest": "^24.1.0"
+  },
+  "scripts": {
+    "test": "jest"
+  }
 }

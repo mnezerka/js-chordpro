@@ -1,5 +1,5 @@
-import {NodeDoc, NodeVerse, NodeRow, NodeChord} from './ChordPro';
-import {transpose} from './ChordProUtils';
+import {NodeDoc, NodeVerse, NodeRow, NodeChord} from '../src/parser';
+import {transpose} from '../src/utils';
 
 describe('ChordPro Transpose', function() {
     it('simple chords', function () {
