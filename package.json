@@ -1,8 +1,8 @@
 {
   "name": "js-chordpro",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ChordPro format parser",
-  "main": "index.js",
+  "main": "dist/parser.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/bluechords/js-chordpro"
@@ -19,10 +19,14 @@
   "devDependencies": {
     "@babel/core": "^7.3.4",
     "@babel/preset-env": "^7.3.4",
+    "babel-cli": "^6.26.0",
     "babel-jest": "^24.1.0",
+    "babel-preset-es2015": "^6.24.1",
     "jest": "^24.1.0"
   },
   "scripts": {
+    "build": "npx babel src --presets babel-preset-es2015 --out-dir dist",
+    "prepublish": "npm run build",
     "test": "jest"
   }
 }
