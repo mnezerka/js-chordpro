@@ -7,16 +7,22 @@ export class Node {
 
 export class NodeDoc {
     constructor() {
-        this.body = []
-        this.title = null
-        this.subTitle = null
+        this.body = [];
+        this.title = null;
+        this.subTitle = null;
+        this.artist = null;
     }
 }
 
 export class NodeMeta extends Node { }
 export class NodeHead extends Node { }
 export class NodeBody extends Node { }
-export class NodeComment extends Node { }
+export class NodeComment extends Node {
+    constructor() {
+        super();
+        this.text = '';
+    }
+}
 export class NodeChord extends Node {
     constructor(chord = null) {
         super();
@@ -42,15 +48,14 @@ function arrayExtend(arr, otherArr) {
     otherArr.forEach(function(v) {arr.push(v)}, arr);
 }
 
-
-// Test wether "o" is an Node
-function isNode(o) {
-    return o instanceof Node;
+// Test wether "item" is an Node
+function isNode(item) {
+    return item instanceof Node;
 }
 
-// Test wether "o" is an Comment'
-function isComment(n) {
-    return n instanceof NodeComment;
+// Test wether "item" is an Comment'
+function isComment(item) {
+    return item instanceof NodeComment;
 }
 
 /*
@@ -58,9 +63,8 @@ Scan stack "s" for "t", pop and return between "t" and end of stack.
 If item "t" is not found, then restore stack and return empty list.
 */
 function popToObject(s, t) {
-    //console.log('------------------------------');
-    //console.log('pop to object enter stack:', s, ' look for:',  t);
     let result = [];
+
     if (s.length === 0) {
         return result;
     }
@@ -78,10 +82,7 @@ function popToObject(s, t) {
         result.shift();
     }
 
-    //console.log('pop to object leave stack:', s, ' result:', result);
-    //console.log('------------------------------');
-
-    return result; 
+    return result;
 }
 
 export function parse(tokens)
@@ -89,15 +90,11 @@ export function parse(tokens)
     let doc = new NodeDoc();
 
     let stack = [] // bottommost stack member is the meta dict
-    //let stack = []; // bottommost stack member is the meta dict
 
     for (let i = 0; i < tokens.length; i++) {
         let token = tokens[i];
         let ttype = token[0];
         let tvalue = token[1];
-
-        //console.log('-------------');
-        //console.log('before', token, stack);
 
         switch (ttype) {
         case CHP_TOKEN_DIRECTIVE:
@@ -133,8 +130,6 @@ export function parse(tokens)
         default:
             throw new Error(`Unrecognized token ${ttype} (${tvalue}) at line xxx`);
         }
-        //console.log('after', token, stack);
-        //console.log('-------------');
     }
 
     return doc;
@@ -195,10 +190,10 @@ function eolHandler(tokens, stack, doc) {
                 //console.log('after pushing node verse', JSON.stringify(doc));
 
             } else {
-                // we're not in a verse, so move everything from the 
+                // we're not in a verse, so move everything from the
                 // stack to the document
                 arrayExtend(doc.body, stack);
-            } 
+            }
             stack.push(VerseBegin)
         }
     }
@@ -231,7 +226,7 @@ function directiveHandler(tokens, stack, doc, ttype, tvalue) {
         if (arg.length === 0) { throw new Error(`{${tag}} directive needs an argument`); }
         let c = new NodeComment();
         c.text = arg;
-        stack[1].push(c);
+        stack.push(c);
 
     } else if (['soc', 'start_of_chorus'].indexOf(tag) >= 0) {
         // close the current verse, if any, then start a chorus
@@ -289,11 +284,11 @@ Returns an iterator which delivers tokens in the tuple form:
 There are currently 8 token types:
 'directive': chordpro directives, found in {curly braces}; the token
     value will be the full text of the directive including the
-    arguments, if any - also note that unparsed {tab} contents are 
+    arguments, if any - also note that unparsed {tab} contents are
     returned as the argument to a {tab} directive
 'chord': inline chord notation, found in [square brackets]
 'comment': sh-style source-code comment, found between an octothorpe
-    and the end of line - not to be confused with a sharp symbol, 
+    and the end of line - not to be confused with a sharp symbol,
     which is found in a chord token using the same character - also
     do not confuse this kind of comment with a chordpro-style
     {comment} directive, which is actually a text block

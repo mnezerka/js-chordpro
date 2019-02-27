@@ -1,4 +1,4 @@
-import {tokenize, parse, NodeChord, NodeChorus, NodeRow, NodeVerse} from '../src/parser';
+import {tokenize, parse, NodeChord, NodeChorus, NodeRow, NodeVerse, NodeComment} from '../src/parser';
 
 describe('ChordPro Tokenizer', function() {
 
@@ -16,9 +16,22 @@ describe('ChordPro Tokenizer', function() {
             ['directive', 'title: This is title'],
             ['eol'],
             ['eof']
-        ];   
+        ];
         expect(expected).toEqual(tokens);
     });
+
+    it('artist shall be tokenized', function () {
+        let tokens = tokenize('{artist: This is title}');
+        let expected = [
+            ['sof'],
+            ['sol'],
+            ['directive', 'artist: This is title'],
+            ['eol'],
+            ['eof']
+        ];
+        expect(expected).toEqual(tokens);
+    });
+
 
     it('chords and lyrics shall be tokenized', function () {
         let tokens = tokenize('Before chords [C] between chords [Am] after chords');
@@ -32,7 +45,7 @@ describe('ChordPro Tokenizer', function() {
             ['lyric', ' after chords'],
             ['eol'],
             ['eof']
-        ];   
+        ];
         expect(expected).toEqual(tokens);
     });
 
@@ -44,7 +57,7 @@ describe('ChordPro Tokenizer', function() {
             ['comment', ' This is comment'],
             ['eol'],
             ['eof']
-        ];   
+        ];
         expect(expected).toEqual(tokens);
     });
 
@@ -56,7 +69,7 @@ describe('ChordPro Tokenizer', function() {
             ['sol'], ['lyric', 'second line '], ['chord', 'C'], ['eol'],
             ['sol'], ['lyric', 'third line.'], ['eol'],
             ['eof']
-        ];   
+        ];
         expect(expected).toEqual(tokens);
     });
 
@@ -69,7 +82,7 @@ describe('ChordPro Tokenizer', function() {
             ['sol'], ['eol'],
             ['sol'], ['lyric', 'last line'], ['eol'],
             ['eof']
-        ];   
+        ];
         expect(expected).toEqual(tokens);
     });
 });
@@ -88,7 +101,7 @@ function dumpSong(doc) {
         } else {
             console.log(doc.body[i]);
         }
-    } 
+    }
 }
 
 describe('ChordPro Parser', function() {
@@ -226,6 +239,18 @@ describe('ChordPro Parser', function() {
         expect(chord.text).toBe('line2');
     });
 
+    it('song with comments', function () {
+        let tokens = tokenize('{c: some comment}\nsome verse\n{comment: second comment}');
+        let song = parse(tokens);
+        expect(song.body.length).toBe(3);
+        let comment = song.body[0];
+        expect(comment).toBeInstanceOf(NodeComment);
+        expect(comment.text).toBe('some comment');
+        let comment2 = song.body[2];
+        expect(comment2).toBeInstanceOf(NodeComment);
+        expect(comment2.text).toBe('second comment');
+    });
+
     it('simple song', function () {
         //let song = parse('');
         let songStr = '{title: Song title}\n' +
@@ -259,8 +284,4 @@ describe('ChordPro Parser', function() {
         expect(section.children.length).toBe(1);
     });
 
-    
 });
-
-
-
