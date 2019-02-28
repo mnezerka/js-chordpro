@@ -23,6 +23,7 @@ module.exports.CHP_TOKEN_DIRECTIVE = 'directive';
 module.exports.CHP_TOKEN_COMMENT = 'comment';
 module.exports.CHP_TOKEN_CHORD = 'chord';
 module.exports.CHP_TOKEN_LYRIC = 'lyric';
+module.exports.CHP_TOKEN_TAB = 'tab';
 module.exports.CHP_TOKEN_SOL = 'sol';
 module.exports.CHP_TOKEN_EOL = 'eol';
 module.exports.CHP_TOKEN_SOF = 'sof';
@@ -33,39 +34,72 @@ module.exports.tokenize = function (text) {
     var result = [];
     result.push([module.exports.CHP_TOKEN_SOF]);
 
+    let preformattedBuffer = '';
+    let preformattedActive = false;
+
+    // split text to lines and go through content
+    // line by line
     var lines = text.split('\n');
-    for (let i = 0; i < lines.length; i++) {
+    var i = 0;
+    while (i < lines.length) {
         let line = lines[i].trim();
         result.push([module.exports.CHP_TOKEN_SOL]);
 
-        // check directive
+        // check if current line represents "directive", "chord", "comment" or "text"
         let pattern = /\s*{([^}]+)}|\[([^\]]+)\]|\s*#(.+)|([^[]+)/g;
-
         let m = null;
         while ((m = pattern.exec(line)) !== null) {
 
+            // directive
             if (m[1] !== undefined) {
-                result.push([module.exports.CHP_TOKEN_DIRECTIVE, m[1]]);
+
+                // if directive represents tabulature
+                if (['sot', 'start_of_tab'].indexOf(m[1]) != -1) {
+                    // read lines until end of tab is found, we need
+                    // to read whole tab block without looking for any
+                    // other tokens here
+                    var patternEnd = /\s*{eot}|\s*{end_of_tab}/g;
+                    var tab = []
+                    i++; // skip line with opening directive
+                    while (i < lines.length) {
+                        let line = lines[i].trim();
+                        if (patternEnd.test(line)) {
+                            break;
+                        }
+                        tab.push(line)
+                        i++
+                    }
+                    // we send tab token also in case we reach end
+                    // of file without successfully identification
+                    // of closing directive
+                    result.push([module.exports.CHP_TOKEN_TAB, tab]);
+                } else {
+                    result.push([module.exports.CHP_TOKEN_DIRECTIVE, m[1]]);
+                }
             }
+            // chord
             if (m[2] !== undefined) {
                 result.push([module.exports.CHP_TOKEN_CHORD, m[2]]);
             }
+
+            // comment
             if (m[3] !== undefined) {
                 result.push([module.exports.CHP_TOKEN_COMMENT, m[3]]);
             }
+
+            // text
             if (m[4] !== undefined) {
                 result.push([module.exports.CHP_TOKEN_LYRIC, m[4]]);
             }
 
-            // TODO:
-            /*if ttype == 'directive' and tvalue in ('sot', 'start_of_tab'):
-                tvalue = preformatted_tokenize(lines, r'^\s*\{(eot|end_of_tab)\}\s*$')
-                tvalue = 'tab:' + ''.join([v[1] for v in tvalue])
-            yield (lineno + 1, ttype, tvalue)
-            */
+            //if ttype == 'directive' and tvalue in ('sot', 'start_of_tab'):
+            //    tvalue = preformatted_tokenize(lines, r'^\s*\{(eot|end_of_tab)\}\s*$')
+            //    tvalue = 'tab:' + ''.join([v[1] for v in tvalue])
+            //yield (lineno + 1, ttype, tvalue)
         }
 
         result.push([module.exports.CHP_TOKEN_EOL]);
+        i++;
     }
 
     result.push([module.exports.CHP_TOKEN_EOF]);

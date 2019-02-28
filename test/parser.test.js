@@ -20,9 +20,9 @@ function dumpSong(doc) {
     }
 }
 
-describe('ChordPro Parser', function() {
+describe('ChordPro parser can parse', function() {
 
-    it('empty song shall be parsed', function () {
+    it('empty song', function () {
         let tokens = tokenizer.tokenize('');
         let song = parser.parse(tokens);
         expect(song.title).toBe(null);
@@ -190,6 +190,35 @@ describe('ChordPro Parser', function() {
         section = song.body[2];
         expect(section).toBeInstanceOf(chordpro.NodeVerse);
         expect(section.children.length).toBe(1);
+    });
+
+    it('tabulature', function () {
+        let songStr = '{title: Song with tab}\n\n' +
+            'verse1 line2\n\n' +
+            '{sot}\n' +
+            '--2------2-----2----\n' +
+            '----3------3-----3--\n' +
+            '------2------2------\n' +
+            '--------------------\n' +
+            '{eot}\n';
+
+        let tokens = tokenizer.tokenize(songStr);
+        let song = parser.parse(tokens);
+
+        console.log(song.constructor);
+        console.log(song.body[0].constructor);
+        console.log(Object.getPrototypeOf(song))
+        expect(song.title).toBe('Song with tab');
+        expect(song.body.length).toBe(2);
+
+        let section = song.body[0];
+        expect(section).toBeInstanceOf(chordpro.NodeVerse);
+        expect(section.children.length).toBe(1);
+
+        section = song.body[1];
+        console.log("child 0", section.children[0].children);
+        expect(section).toBeInstanceOf(chordpro.NodeTab);
+        //expect(section.children.length).toBe(3);
     });
 
 });

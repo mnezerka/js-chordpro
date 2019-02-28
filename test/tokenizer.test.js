@@ -1,14 +1,14 @@
 var tokenizer = require('../src/tokenizer');
 
-describe('ChordPro Tokenizer', function() {
+describe('ChordPro tokenizer can process', function() {
 
-    it('empty song shall be tokenized', function () {
+    it('empty song', function () {
         let tokens = tokenizer.tokenize('');
         let expected = [ ['sof'], ['sol'], ['eol'], ['eof']];
         expect(expected).toEqual(tokens);
     });
 
-    it('song title shall be tokenized', function () {
+    it('song title', function () {
         let tokens = tokenizer.tokenize('{title: This is title}');
         let expected = [
             ['sof'],
@@ -20,7 +20,7 @@ describe('ChordPro Tokenizer', function() {
         expect(expected).toEqual(tokens);
     });
 
-    it('artist shall be tokenized', function () {
+    it('artist', function () {
         let tokens = tokenizer.tokenize('{artist: This is title}');
         let expected = [
             ['sof'],
@@ -33,7 +33,7 @@ describe('ChordPro Tokenizer', function() {
     });
 
 
-    it('chords and lyrics shall be tokenized', function () {
+    it('chords and lyrics', function () {
         let tokens = tokenizer.tokenize('Before chords [C] between chords [Am] after chords');
         let expected = [
             ['sof'],
@@ -49,7 +49,7 @@ describe('ChordPro Tokenizer', function() {
         expect(expected).toEqual(tokens);
     });
 
-    it('comment shall be tokenized', function () {
+    it('comment', function () {
         let tokens = tokenizer.tokenize('# This is comment');
         let expected = [
             ['sof'],
@@ -61,7 +61,7 @@ describe('ChordPro Tokenizer', function() {
         expect(expected).toEqual(tokens);
     });
 
-    it('multiple lines with chords and lyrics shall be tokenized', function () {
+    it('multiple lines with chords and lyrics', function () {
         let tokens = tokenizer.tokenize('{title: something}\nsecond line [C]\nthird line.');
         let expected = [
             ['sof'],
@@ -73,7 +73,7 @@ describe('ChordPro Tokenizer', function() {
         expect(expected).toEqual(tokens);
     });
 
-    it('empty lines are not ignored', function () {
+    it('empty lines and not ingore them', function () {
         let tokens = tokenizer.tokenize('first line\n\n\nlast line');
         let expected = [
             ['sof'],
@@ -85,4 +85,18 @@ describe('ChordPro Tokenizer', function() {
         ];
         expect(expected).toEqual(tokens);
     });
+
+    it('tabulature section', function () {
+        let tokens = tokenizer.tokenize('first line\n{sot}\n---2---\n---3---\n{eot}\nlast line');
+        let expected = [
+            ['sof'],
+            ['sol'], ['lyric', 'first line'], ['eol'],
+            ['sol'], ['tab', ['---2---', '---3---']], ['eol'],
+            ['sol'], ['lyric', 'last line'], ['eol'],
+            ['eof']
+        ];
+
+        expect(expected).toEqual(tokens);
+    });
+
 });

@@ -52,7 +52,7 @@ function popToObject(s, t) {
 }
 
 module.exports.parse = function (tokens) {
-    let doc = new chordpro.NodeDoc();
+    let doc = new chordpro.Doc();
 
     let stack = [] // bottommost stack member is the meta dict
 
@@ -61,12 +61,17 @@ module.exports.parse = function (tokens) {
         let ttype = token[0];
         let tvalue = token[1];
 
+        console.log(token);
+
         switch (ttype) {
         case tokenizer.CHP_TOKEN_DIRECTIVE:
             directiveHandler(tokens, stack, doc, ttype, tvalue)
             break;
         case tokenizer.CHP_TOKEN_COMMENT:
             stack.push(new chordpro.Node(Node.EL_TYPE_COMMENT, tvalue));
+            break;
+        case tokenizer.CHP_TOKEN_TAB:
+            stack.push(new chordpro.NodeTab(tvalue));
             break;
         case tokenizer.CHP_TOKEN_CHORD:
             // always maintain a chord:lyric pairing on the stack
@@ -194,8 +199,9 @@ function directiveHandler(tokens, stack, doc, ttype, tvalue) {
         stack.push(c);
 
     } else if (['soc', 'start_of_chorus'].indexOf(tag) >= 0) {
-        // close the current verse, if any, then start a chorus
         if (arg.length > 0) { throw new Error(`{${tag}} directive needs no argument (${arg})`); }
+
+        // close the current verse, if any, then start a chorus
         popToObject(stack, LineBegin)
         let verse = popToObject(stack, VerseBegin)
         if (verse.length > 0) {
@@ -215,26 +221,13 @@ function directiveHandler(tokens, stack, doc, ttype, tvalue) {
         let chorus = popToObject(stack, ChorusBegin)
         arrayExtend(c.children, chorus);
 
-    } else if (tag === 'tab') {
-        if (arg.length === 0) { throw new Error(`{${tag}} directive needs an argument`); }
-        let t = new chordpro.NodeTab();
-        t.text = arg;
-        doc.body.push(t);
-
     } else if (['np', 'new_page', 'npp', 'new_physical_page', 'ns', 'new_song', 'rowname'].indexOf(tag) >= 0) {
 
         // haven't implemented these yet, don't want them throwing errors either
         // ...they're basically just rendering hints anyway
 
     } else {
-        /*
-        TODO: do we need a catchall for {directive}?
-        TODO: directives seen in other parsers:
-        TODO: - textfont, textsize
-        TODO: - chordfont, chordsize
-        TODO: - ng, no_grid
-        TODO: - g, grid
-        */
         throw new Error(`Unimplemented directive ${tag}`)
     }
 }
+

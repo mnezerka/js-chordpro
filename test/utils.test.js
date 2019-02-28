@@ -3,7 +3,7 @@ var utils = require('../src/utils');
 
 describe('ChordPro Transpose', function() {
     it('simple chords', function () {
-        let doc = new chordpro.NodeDoc();
+        let doc = new chordpro.Doc();
         let verse = new chordpro.NodeVerse();
         doc.body.push(verse);
 
@@ -24,7 +24,7 @@ describe('ChordPro Transpose', function() {
     });
 
     it('complex chords', function () {
-        let doc = new chordpro.NodeDoc();
+        let doc = new chordpro.Doc();
         let verse = new chordpro.NodeVerse();
         doc.body.push(verse);
 
