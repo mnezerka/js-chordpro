@@ -38,3 +38,16 @@ This is first verse
      G
 with chords
 ```
+
+## Use as cli tool
+
+Package provides cli command `jschordpro`.
+
+Following command will register package as cli command in case
+you don't install it as npm package (e.g. in case of git clone):
+```
+npm link
+```
+
+Resources:
+- https://medium.com/netscape/a-guide-to-create-a-nodejs-command-line-package-c2166ad0452e
