@@ -1,6 +1,7 @@
-import {parse, tokenize} from '../src/parser';
-import {FormatterAscii} from '../src/FormatterAscii';
-import {transpose} from '../src/utils';
+var parser = require('../src/parser');
+var tokenizer = require('../src/tokenizer');
+var utils = require('../src/utils');
+var FormatterAscii = require('../src/FormatterAscii');
 
 describe('ChordPro Ascii Formatter', function() {
 
@@ -12,10 +13,9 @@ describe('ChordPro Ascii Formatter', function() {
         with [G]chords
         `;
 
-        const song_doc = parse(tokenize(song_chordpro))
+        const song_doc = parser.parse(tokenizer.tokenize(song_chordpro))
 
-        const formatterAscii = new FormatterAscii();
-
+        const formatterAscii = new FormatterAscii.FormatterAscii();
         const song_ascii = formatterAscii.processSong(song_doc);
         const song_expected =
             'Title: Some Song\n' +

@@ -1,39 +1,5 @@
-// Returns an ElementTree-based DOM using output from tokenizer()'
-export class Node {
-    constructor() {
-        this.children = [];
-    }
-}
-
-export class NodeDoc {
-    constructor() {
-        this.body = [];
-        this.title = null;
-        this.subTitle = null;
-        this.artist = null;
-    }
-}
-
-export class NodeMeta extends Node { }
-export class NodeHead extends Node { }
-export class NodeBody extends Node { }
-export class NodeComment extends Node {
-    constructor() {
-        super();
-        this.text = '';
-    }
-}
-export class NodeChord extends Node {
-    constructor(chord = null) {
-        super();
-        this.chord = chord
-        this.text = '';
-    }
-}
-export class NodeRow extends Node { }
-export class NodeVerse extends Node { }
-export class NodeChorus extends Node { }
-export class NodeTab extends Node { }
+var chordpro = require('./chordpro');
+var tokenizer = require('./tokenizer');
 
 var LineBegin = {type:'line-begin'};
 var VerseBegin = {type:'verse-begin'};
@@ -50,12 +16,12 @@ function arrayExtend(arr, otherArr) {
 
 // Test wether "item" is an Node
 function isNode(item) {
-    return item instanceof Node;
+    return item.type === 'node';
 }
 
 // Test wether "item" is an Comment'
 function isComment(item) {
-    return item instanceof NodeComment;
+    return item instanceof chordpro.NodeComment;
 }
 
 /*
@@ -85,9 +51,8 @@ function popToObject(s, t) {
     return result;
 }
 
-export function parse(tokens)
-{
-    let doc = new NodeDoc();
+module.exports.parse = function (tokens) {
+    let doc = new chordpro.NodeDoc();
 
     let stack = [] // bottommost stack member is the meta dict
 
@@ -97,34 +62,34 @@ export function parse(tokens)
         let tvalue = token[1];
 
         switch (ttype) {
-        case CHP_TOKEN_DIRECTIVE:
+        case tokenizer.CHP_TOKEN_DIRECTIVE:
             directiveHandler(tokens, stack, doc, ttype, tvalue)
             break;
-        case CHP_TOKEN_COMMENT:
-            stack.push(new Node(Node.EL_TYPE_COMMENT, tvalue));
+        case tokenizer.CHP_TOKEN_COMMENT:
+            stack.push(new chordpro.Node(Node.EL_TYPE_COMMENT, tvalue));
             break;
-        case CHP_TOKEN_CHORD:
+        case tokenizer.CHP_TOKEN_CHORD:
             // always maintain a chord:lyric pairing on the stack
-            stack.push(new NodeChord(tvalue.trim()));
+            stack.push(new chordpro.NodeChord(tvalue.trim()));
             stack[stack.length - 1].text = ''
             break;
-        case CHP_TOKEN_LYRIC:
+        case tokenizer.CHP_TOKEN_LYRIC:
             // if a lyric appears before a chord, assume a blank chord
             tvalue = ltrim(tvalue);
             if (tvalue.length > 0) {
-                if (!isNode(stack[stack.length - 1]) || !stack[stack.length - 1] instanceof NodeChord) {
-                    stack.push(new NodeChord(''));
+                if (!isNode(stack[stack.length - 1]) || !stack[stack.length - 1] instanceof chordpro.NodeChord) {
+                    stack.push(new chordpro.NodeChord(''));
                 }
                 stack[stack.length - 1].text = stack[stack.length - 1].text + tvalue
             }
             break;
-        case CHP_TOKEN_SOL:
+        case tokenizer.CHP_TOKEN_SOL:
             stack.push(LineBegin)
             break;
-        case CHP_TOKEN_SOF:
+        case tokenizer.CHP_TOKEN_SOF:
             break;
-        case CHP_TOKEN_EOL:
-        case CHP_TOKEN_EOF:
+        case tokenizer.CHP_TOKEN_EOL:
+        case tokenizer.CHP_TOKEN_EOF:
             eolHandler(tokens, stack, doc, ttype, tvalue)
             break;
         default:
@@ -161,7 +126,7 @@ function eolHandler(tokens, stack, doc) {
             // current line contains nothing but Comment objects
             arrayExtend(stack, line);
         } else {
-            let r = new NodeRow();
+            let r = new chordpro.NodeRow();
             stack.push(r);
             arrayExtend(r.children, line);
         }
@@ -184,7 +149,7 @@ function eolHandler(tokens, stack, doc) {
             let verseItems = popToObject(stack, VerseBegin)
 
             if (verseItems.length > 0) {
-                let v = new NodeVerse();
+                let v = new chordpro.NodeVerse();
                 doc.body.push(v);
                 arrayExtend(v.children, verseItems);
                 //console.log('after pushing node verse', JSON.stringify(doc));
@@ -224,7 +189,7 @@ function directiveHandler(tokens, stack, doc, ttype, tvalue) {
 
     } else if (['c', 'comment'].indexOf(tag) >= 0) {
         if (arg.length === 0) { throw new Error(`{${tag}} directive needs an argument`); }
-        let c = new NodeComment();
+        let c = new chordpro.NodeComment();
         c.text = arg;
         stack.push(c);
 
@@ -234,7 +199,7 @@ function directiveHandler(tokens, stack, doc, ttype, tvalue) {
         popToObject(stack, LineBegin)
         let verse = popToObject(stack, VerseBegin)
         if (verse.length > 0) {
-            let v = new NodeVerse();
+            let v = new chordpro.NodeVerse();
             stack.push(v);
             arrayExtend(v.children, verse);
         }
@@ -245,14 +210,14 @@ function directiveHandler(tokens, stack, doc, ttype, tvalue) {
         // - that's done after an sol token
         if (arg.length > 0) { throw new Error(`{${tag}} directive needs no argument (${arg})`); }
         popToObject(stack, LineBegin)
-        let c = new NodeChorus();
+        let c = new chordpro.NodeChorus();
         doc.body.push(c);
         let chorus = popToObject(stack, ChorusBegin)
         arrayExtend(c.children, chorus);
 
     } else if (tag === 'tab') {
         if (arg.length === 0) { throw new Error(`{${tag}} directive needs an argument`); }
-        let t = new NodeTab();
+        let t = new chordpro.NodeTab();
         t.text = arg;
         doc.body.push(t);
 
@@ -273,81 +238,3 @@ function directiveHandler(tokens, stack, doc, ttype, tvalue) {
         throw new Error(`Unimplemented directive ${tag}`)
     }
 }
-
-
-/*
-Splits bytes from infile into tokens for the parser.
-
-Returns an iterator which delivers tokens in the tuple form:
-    (line number, token type, token value)
-
-There are currently 8 token types:
-'directive': chordpro directives, found in {curly braces}; the token
-    value will be the full text of the directive including the
-    arguments, if any - also note that unparsed {tab} contents are
-    returned as the argument to a {tab} directive
-'chord': inline chord notation, found in [square brackets]
-'comment': sh-style source-code comment, found between an octothorpe
-    and the end of line - not to be confused with a sharp symbol,
-    which is found in a chord token using the same character - also
-    do not confuse this kind of comment with a chordpro-style
-    {comment} directive, which is actually a text block
-'lyric': just about any other kind of text
-'sof', 'eof': start of file, end of file
-'sol', 'eol': start of line, end of line
-*/
-const CHP_TOKEN_DIRECTIVE = 'directive';
-const CHP_TOKEN_COMMENT = 'comment';
-const CHP_TOKEN_CHORD = 'chord';
-const CHP_TOKEN_LYRIC = 'lyric';
-const CHP_TOKEN_SOL = 'sol';
-const CHP_TOKEN_EOL = 'eol';
-const CHP_TOKEN_SOF = 'sof';
-const CHP_TOKEN_EOF = 'eof';
-
-
-export function tokenize(text) {
-
-    var result = [];
-    result.push([CHP_TOKEN_SOF]);
-
-    var lines = text.split('\n');
-    for (let i = 0; i < lines.length; i++) {
-        let line = lines[i].trim();
-        result.push([CHP_TOKEN_SOL]);
-
-        // check directive
-        let pattern = /\s*{([^}]+)}|\[([^\]]+)\]|\s*#(.+)|([^[]+)/g;
-
-        let m = null;
-        while ((m = pattern.exec(line)) !== null) {
-
-            if (m[1] !== undefined) {
-                result.push([CHP_TOKEN_DIRECTIVE, m[1]]);
-            }
-            if (m[2] !== undefined) {
-                result.push([CHP_TOKEN_CHORD, m[2]]);
-            }
-            if (m[3] !== undefined) {
-                result.push([CHP_TOKEN_COMMENT, m[3]]);
-            }
-            if (m[4] !== undefined) {
-                result.push([CHP_TOKEN_LYRIC, m[4]]);
-            }
-
-            // TODO:
-            /*if ttype == 'directive' and tvalue in ('sot', 'start_of_tab'):
-                tvalue = preformatted_tokenize(lines, r'^\s*\{(eot|end_of_tab)\}\s*$')
-                tvalue = 'tab:' + ''.join([v[1] for v in tvalue])
-            yield (lineno + 1, ttype, tvalue)
-            */
-        }
-
-        result.push([CHP_TOKEN_EOL]);
-    }
-
-    result.push([CHP_TOKEN_EOF]);
-
-    return result;
-}
-

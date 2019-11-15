@@ -1,20 +1,20 @@
-import {NodeVerse, NodeRow, NodeChord} from './parser';
+var chordpro = require('./chordpro');
 
-export function transpose(song, step) {
+module.exports.transpose = function(song, step) {
 
     for (let bodyItem of song.body) {
 
-        if (!(bodyItem instanceof NodeVerse || !(bodyItem instanceof NodeChord))) {
+        if (!(bodyItem instanceof chordpro.NodeVerse || !(bodyItem instanceof chordpro.NodeChord))) {
             continue;
         }
 
         for (let row of bodyItem.children) {
-            if (!(row instanceof NodeRow)) {
+            if (!(row instanceof chordpro.NodeRow)) {
                 continue;
             }
 
             for (let rowItem of row.children) {
-                if (rowItem instanceof NodeChord) {
+                if (rowItem instanceof chordpro.NodeChord) {
                     transposeChord(rowItem, step);
                 }
             }

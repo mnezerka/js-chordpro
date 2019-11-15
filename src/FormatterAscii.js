@@ -1,8 +1,8 @@
-import {NodeVerse, NodeRow, NodeChord} from './parser';
+var chordpro = require('./chordpro');
 
-export class FormatterAscii {
+module.exports.FormatterAscii = function() {
 
-    _processRow(node)
+    this._processRow = function(node)
     {
         let line_chord = '';
         let line_text = '';
@@ -23,14 +23,13 @@ export class FormatterAscii {
         return result + line_text;
     }
 
-
-    _processVerse(node)
+    this._processVerse = function(node)
     {
         var result = '';
 
         for (let i = 0; i < node.children.length; i++) {
             const item = node.children[i];
-            if (item instanceof NodeRow)
+            if (item instanceof chordpro.NodeRow)
             {
                 result += this._processRow(item) + '\n';
             }
@@ -38,7 +37,7 @@ export class FormatterAscii {
         return result;
     }
 
-    processSong(doc)
+    this.processSong = function(doc)
     {
         var result = '';
 
@@ -53,7 +52,7 @@ export class FormatterAscii {
         for (let i = 0; i < doc.body.length; i++) {
             let node = doc.body[i];
 
-            if (node instanceof NodeVerse) {
+            if (node instanceof chordpro.NodeVerse) {
                 result += this._processVerse(node)
             }
             else {
