@@ -40,8 +40,6 @@ function processRow(node) {
     return result;
 }
 
-
-
 function processVerse(node) {
     var result = '<div class="jschordpro-verse">';
 
@@ -78,18 +76,26 @@ module.exports.processSong = function(doc) {
 
     var result = '<html>'
     result += '<head>';
+    result += `
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+        `
     result += '<style>';
     result += `
-        html, body {
+        html, body, table, td {
             font-family: Verdana, Geneva, sans-serif;
-            font-size: 10pt;
+            font-size: 11pt;
         }
 
-        .jschordpro h1 {
+        .jschordpro-song table {
+            border-collapse: collapse
+        }
+
+        .jschordpro-song h1 {
             font-size: 17pt;
         }
 
-        .jschordpro h2 {
+        .jschordpro-song h2 {
             font-size: 14pt;
         }
 
