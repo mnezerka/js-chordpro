@@ -1,5 +1,6 @@
-var chordpro = require('./chordpro');
+//var chordpro = require('./chordpro');
 
+/*
 module.exports.transpose = function transpose(song, step) {
 
     for (let bodyItem of song.body) {
@@ -80,3 +81,4 @@ module.exports.transpose_chord = function transpose_chord(chordNode, step) {
     chordNode.chord = result;
     //console.log('chord', chord, ' -> ', result);
 }
+*/

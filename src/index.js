@@ -1,11 +1,7 @@
-import Parser from "./parser.js"
-import Tokenizer from "./tokenizer.js"
-import FormatterAscii from "./formatter_ascii.js"
-import FormatterHtml from "./formatter_html.js"
+const Parser = require("./parser.js");
+const FormatterAscii = require("./formatter_ascii.js");
+const FormatterHtml = require("./formatter_html.js");
 
-export default {
-    Parser,
-    Tokenizer,
-    FormatterAscii,
-    FormatterHtml
-}
+module.exports.parse = Parser.parse;
+module.exports.to_ascii = FormatterAscii.process_song;
+module.exports.to_html = FormatterHtml.process_song;

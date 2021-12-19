@@ -1,8 +1,28 @@
 # ChordPro
 
-Javscript implementation of parser for song lyrics writted in  [ChordPro](
-(https://www.chordpro.org/chordpro/ChordPro-File-Format-Specification.html)
-format.
+Javscript implementation of parser for song lyrics writted in  [ChordPro](https://www.chordpro.org/chordpro/ChordPro-File-Format-Specification.html) format.
+
+The solution is based on wonderful tools [nearley parser](https://nearley.js.org/)
+and [moo lexer](https://github.com/no-context/moo).
+
+## How to build and deploy
+
+Install dependences:
+```bash
+npm install
+```
+Compile grammar to js: 
+```
+npx nearly src/grammar.ns -o src/grammar.js
+```
+Start development mode (package is built on each change in source code):
+```bash
+npm run dev
+```
+Build package for deploymet:
+```bash
+npm run build
+```
 
 ## ChordPro Format Coverage 
 
@@ -41,8 +61,8 @@ Environment directives
 - [ ] `chorus`
 - [ ] `start_of_verse`
 - [ ] `end_of_verse`
-- [x] `start_of_tab`, `sot)`
-- [x] `end_of_tab`, `eot)`
+- [ ] `start_of_tab`, `sot)`
+- [ ] `end_of_tab`, `eot)`
 - [ ] `start_of_grid`
 - [ ] `end_of_grid`
 
@@ -81,8 +101,7 @@ Custom extensions
 ## Quick Start
 
 ```javascript
-var cp = require('js-chordpro');
-var {FormatterAscii} = require('js-chordpro/dist/FormatterAscii');
+var chordpro = require('js-chordpro');
 
 // Song to be parsed
 const song_chordpro = `
@@ -93,27 +112,13 @@ with [G]chords
 `;
 
 // tokenize and parse song into in-memory song document structure
-const song_doc = cp.parse(cp.tokenize(song_chordpro))
+let parsed = jschordpro.parse(song_chordpro + "\n")
 
-// create instance of ascii formatter
-var formatterAscii = new FormatterAscii();
+// render in-memory song document to html
+let html = jschordpro.to_html(doc);
 
-// write ascii representation to console
-const song_ascii = formatterAscii.processSong(song_doc);
-console.log(song_ascii);
+console.log(html);
 ```
-
-Output (content of `song_ascii` variable) should look like:
-
-```
-Title: Some Song
-
-G             C
-This is first verse
-        G
-with chords
-```
-
 ## Use as cli tool
 
 Package provides cli command `jschordpro`.
