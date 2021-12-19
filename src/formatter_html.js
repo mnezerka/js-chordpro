@@ -1,4 +1,4 @@
-var chordpro = require('./chordpro');
+import chordpro from './chordpro';
 
 function processText(text) {
     if (text === null || text.length === 0) {
@@ -73,64 +73,16 @@ function processChorus(node) {
 }
 
 module.exports.processSong = function(doc) {
+    console.log(doc);
 
-    var result = '<html>'
-    result += '<head>';
-    result += `
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
-        `
-    result += '<style>';
-    result += `
-        html, body, table, td {
-            font-family: Verdana, Geneva, sans-serif;
-            font-size: 11pt;
-        }
-
-        .jschordpro-song table {
-            border-collapse: collapse
-        }
-
-        .jschordpro-song h1 {
-            font-size: 17pt;
-        }
-
-        .jschordpro-song h2 {
-            font-size: 14pt;
-        }
-
-        .jschordpro-verse {
-            margin-bottom: 1em;
-        }
-
-        .jschordpro-chorus {
-            margin-bottom: 1em;
-            margin-left: 1em;
-        }
-
-        .jschordpro-chord {
-            font-weight: bold;
-            color: #36C;
-        }
-
-        .jschordpro-text {
-            padding: 0px;
-            white-space: pre;
-        }
-    `
-
-
-    result += '</style>';
-
-    result += '</head>';
-    result += '<body>';
-    result += '<div class="jschordpro-song">';
+    var result = '<div class="jschordpro-song">';
 
     if (doc.title) {result += `<h1>${doc.title}</h1>`};
     if (doc.subTitle) {result += `<h2>${doc.subTitle}</h2>`};
     if (doc.artist) {result += `<h2>${doc.artist}</h2>`};
 
     // loop through song content item by item
+    console.log(doc.body.length)
     for (let i = 0; i < doc.body.length; i++) {
         let node = doc.body[i];
 
@@ -138,13 +90,14 @@ module.exports.processSong = function(doc) {
             result += processVerse(node)
         } else if (node instanceof chordpro.NodeChorus) {
             result += processChorus(node)
+        } else if (node instanceof chordpro.NodeRow) {
+            result += processRow(node)
         } else {
             //console.log(node);
         }
     }
 
     result += '</div>';
-    result += '</body></html>';
 
     return result;
 }

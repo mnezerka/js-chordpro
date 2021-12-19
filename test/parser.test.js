@@ -90,6 +90,23 @@ describe('ChordPro Parser', function() {
         expect(chord.text).toBe('end');
     });
 
+    it('single line verse with chords (truncated)', function () {
+        let tokens = tokenizer.tokenize('[C]line');
+        console.log(tokens)
+        let song = parser.parse(tokens);
+        expect(song.body.length).toBe(1);
+        let verse = song.body[0];
+        expect(verse).toBeInstanceOf(chordpro.NodeVerse);
+        expect(verse.children.length).toBe(1);
+        let row = verse.children[0];
+        expect(row).toBeInstanceOf(chordpro.NodeRow);
+        expect(row.children.length).toBe(1);
+        let chord = row.children[0];
+        expect(chord).toBeInstanceOf(chordpro.NodeChord);
+        expect(chord.chord).toBe('C');
+        expect(chord.text).toBe('line');
+    });
+
     it('multiple line verse without chords', function () {
         let tokens = tokenizer.tokenize('\nline1\nline2\nline3\n');
         let song = parser.parse(tokens);
@@ -151,10 +168,15 @@ describe('ChordPro Parser', function() {
     it('song with comments', function () {
         let tokens = tokenizer.tokenize('{c: some comment}\nsome verse\n{comment: second comment}');
         let song = parser.parse(tokens);
+
+        console.log(song);
+
         expect(song.body.length).toBe(3);
+
         let comment = song.body[0];
         expect(comment).toBeInstanceOf(chordpro.NodeComment);
         expect(comment.text).toBe('some comment');
+
         let comment2 = song.body[2];
         expect(comment2).toBeInstanceOf(chordpro.NodeComment);
         expect(comment2.text).toBe('second comment');

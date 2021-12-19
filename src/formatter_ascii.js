@@ -1,6 +1,6 @@
-var chordpro = require('./chordpro');
+import chordpro from './chordpro';
 
-function processRow(node) {
+export function processRow(node) {
     let line_chord = '';
     let line_text = '';
 
@@ -20,7 +20,7 @@ function processRow(node) {
     return result + line_text;
 }
 
-function processVerse(node) {
+export function processVerse(node) {
     var result = '';
 
     for (let i = 0; i < node.children.length; i++) {
@@ -33,7 +33,7 @@ function processVerse(node) {
     return result;
 }
 
-module.exports.processSong = function(doc) {
+export function processSong(doc) {
 
     var result = '';
 

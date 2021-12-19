@@ -1,6 +1,6 @@
 var chordpro = require('./chordpro');
 
-module.exports.transpose = function(song, step) {
+module.exports.transpose = function transpose(song, step) {
 
     for (let bodyItem of song.body) {
 
@@ -25,7 +25,7 @@ module.exports.transpose = function(song, step) {
     return song;
 }
 
-function transposeChord(chordNode, step) {
+module.exports.transpose_chord = function transpose_chord(chordNode, step) {
     //console.log('here', chordNode, step);
     const roots = 'CDEFGAB';
     const steps = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];

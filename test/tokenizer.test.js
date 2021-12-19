@@ -49,6 +49,22 @@ describe('ChordPro Tokenizer', function() {
         expect(expected).toEqual(tokens);
     });
 
+    it('chords and lyrics shall be tokenized (case empty line at the end)', function () {
+        let tokens = tokenizer.tokenize('[C]behind chord\n    ');
+        let expected = [
+            ['sof'],
+            ['sol'],
+            ['chord', 'C'],
+            ['lyric', 'behind chord'],
+            ['eol'],
+            ['sol'],
+            ['eol'],
+            ['eof']
+        ];
+        expect(expected).toEqual(tokens);
+    });
+
+
     it('comment shall be tokenized', function () {
         let tokens = tokenizer.tokenize('# This is comment');
         let expected = [
@@ -85,4 +101,6 @@ describe('ChordPro Tokenizer', function() {
         ];
         expect(expected).toEqual(tokens);
     });
+
+
 });

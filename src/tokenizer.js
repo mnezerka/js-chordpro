@@ -28,7 +28,7 @@ module.exports.CHP_TOKEN_EOL = 'eol';
 module.exports.CHP_TOKEN_SOF = 'sof';
 module.exports.CHP_TOKEN_EOF = 'eof';
 
-module.exports.tokenize = function (text) {
+module.exports.tokenize = function tokenize (text) {
 
     var result = [];
     result.push([module.exports.CHP_TOKEN_SOF]);
