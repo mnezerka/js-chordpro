@@ -71,7 +71,7 @@ function process_chorus(v) {
     return result;
 }
 
-function proces_line(v) {
+function process_line(v) {
 
     var result = {
         type: "row",
@@ -106,6 +106,7 @@ function process_artist(v) {
 
 function process_header(v) {
     let result = {
+        type: "header",
         title: v[0],
         subtitle: v[1],
         artist: v[2]
@@ -147,7 +148,7 @@ var grammar = {
     {"name": "line$ebnf$1$subexpression$2", "symbols": [(lexer.has("chord") ? {type: "chord"} : chord)]},
     {"name": "line$ebnf$1$subexpression$2", "symbols": [(lexer.has("text") ? {type: "text"} : text)]},
     {"name": "line$ebnf$1", "symbols": ["line$ebnf$1", "line$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "line", "symbols": ["line$ebnf$1", (lexer.has("nl") ? {type: "nl"} : nl)], "postprocess": proces_line}
+    {"name": "line", "symbols": ["line$ebnf$1", (lexer.has("nl") ? {type: "nl"} : nl)], "postprocess": process_line}
 ]
   , ParserStart: "chordpro"
 }

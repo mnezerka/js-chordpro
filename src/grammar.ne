@@ -67,7 +67,7 @@ function process_chorus(v) {
     return result;
 }
 
-function proces_line(v) {
+function process_line(v) {
 
     var result = {
         type: "row",
@@ -102,6 +102,7 @@ function process_artist(v) {
 
 function process_header(v) {
     let result = {
+        type: "header",
         title: v[0],
         subtitle: v[1],
         artist: v[2]
@@ -131,4 +132,4 @@ verse -> line:+ %nl:+ {% process_verse %}
 
 chorus -> %soc %nl line:+ %eoc %nl:+ {% process_chorus %}
 
-line -> (%chord | %text):+ %nl {% proces_line %}
+line -> (%chord | %text):+ %nl {% process_line %}
