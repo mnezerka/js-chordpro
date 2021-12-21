@@ -27,13 +27,13 @@ function process_row(row)
     // check if there is at least one real chord in a row
     let chords_real = chords.filter(c => c !== "")
     if (chords_real.length > 0) {
-        result += '<tr>';
+        result += '<tr class="jschordpro-row-chords">';
         result += chords.map(c => `<td class="jschordpro-chord">${c}</td>`).join("\n");
         result += '</tr>';
     }
 
     // lyris row
-    result += '<tr>';
+    result += '<tr class="jschordpro-row-lyrics">';
     result += lyrics.map(l => `<td class="jschordpro-lyrics">${l.replaceAll(" ", "&nbsp;")}</td>`).join("\n");
     result += '</tr>';
 
@@ -58,16 +58,20 @@ module.exports.process_song = function(doc) {
     var result = '<div class="jschordpro-song">';
 
     if (doc.type === "chordpro") {
-        if (doc.header.title) { result += `<h1>${doc.header.title}</h1>` };
-        if (doc.header.subtitle) { result += `<h2>${doc.header.subtitle}</h2>` };
-        if (doc.header.artist) { result += `<h2>${doc.header.artist}</h2>` };
+        result += '<div class="jschordpro-header">';
+        if (doc.header.title.length > 0) { result += `<h1>${doc.header.title}</h1>` };
+        if (doc.header.subtitle.length > 0) { result += `<h2>${doc.header.subtitle}</h2>` };
+        if (doc.header.artist.length > 0) { result += `<h2>${doc.header.artist}</h2>` };
+        result += '</div>';
 
         // loop through song content item by item
         if (doc.content.type === "content") {
+            result += '<div class="jschordpro-content">';
             for (let i = 0; i < doc.content.parts.length; i++) {
                 let part = doc.content.parts[i];
                 result += process_text_part(part)
             }
+            result += '</div>';
         }
 
     }

@@ -11,7 +11,7 @@ let lexer = moo.compile({
     subtitle: { match: /(?:{subtitle:.*?}|{st:.*?})/, value: s => (s.slice(1, -1).split(":"))[1].trim()},
     artist: { match: /{artist:.*?}/, value: s => (s.slice(1, -1).split(":"))[1].trim()},
     chord: { match: /\[.+?\]/, value: s  => s.slice(1, -1) },
-    nl: { match: /\n/, lineBreaks: true },
+    nl: { match: /[\n\r]/, lineBreaks: true },
     soc: /(?:{soc}|{start_of_chorus})/,
     eoc: /(?:{eoc}|{end_of_chorus})/,
     text: /[^[\n]+/,

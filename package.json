@@ -1,6 +1,6 @@
 {
   "name": "js-chordpro",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "ChordPro format parser",
   "main": "dist/js-chordpro.js",
   "repository": {
