@@ -1,6 +1,5 @@
 
-function process_row(row)
-{
+function processRow(node) {
     let chords = [];
     let lyrics = [];
     let last_chord = null;
@@ -42,7 +41,7 @@ function process_row(row)
     return result;
 }
 
-function process_text_part(part) {
+function processTextPart(part) {
     let result = `<div class="jschordpro-${part.type}">`;
     for (let i = 0; i < part.lines.length; i++) {
         let row = part.lines[i];
@@ -54,7 +53,7 @@ function process_text_part(part) {
     return result;
 }
 
-module.exports.process_song = function(doc) {
+function processSong(doc) {
     var result = '<div class="jschordpro-song">';
 
     if (doc.type === "chordpro") {
@@ -79,4 +78,10 @@ module.exports.process_song = function(doc) {
     result += '</div>';
 
     return result;
+}
+
+module.exports = {
+    processSong,
+    processTextPart,
+    processRow
 }

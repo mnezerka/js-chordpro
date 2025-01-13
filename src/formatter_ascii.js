@@ -1,13 +1,30 @@
 
-module.exports.process_row = function process_row(node) {
+function processRow(node) {
     let line_chord = '';
     let line_text = '';
 
-    for (let i = 0; i < node.children.length; i++) {
-        const item = node.children[i];
-        const max_len = Math.max(item.chord.length, item.text.length);
-        line_chord += item.chord + ' '.repeat(max_len - item.chord.length);
-        line_text += item.text + ' '.repeat(max_len - item.text.length);
+    for (let i = 0; i < node.items.length; i++) {
+        const item = node.items[i];
+        const max_len = item.value.length
+
+        let diff
+        switch (item.type) {
+            case 'chord':
+                diff = line_text.length - line_chord.length
+                if (diff > 0) {
+                    line_chord += ' '.repeat(diff)
+                }
+                line_chord += item.value + ' '
+                break;
+            case 'text':
+                line_text += item.value
+                diff = line_chord.length - line_text.length
+                if (diff > 0) {
+                    line_text += ' '.repeat(diff)
+                }
+
+                break;
+        }
     }
 
     let result = '';
@@ -19,12 +36,12 @@ module.exports.process_row = function process_row(node) {
     return result + line_text;
 }
 
-module.exports.process_verse = function process_verse(node) {
+function processVerse(node) {
     var result = '';
 
-    for (let i = 0; i < node.children.length; i++) {
-        const item = node.children[i];
-        if (item instanceof chordpro.NodeRow)
+    for (let i = 0; i < node.items.length; i++) {
+        const item = node.items[i];
+        if (item.type == 'line')
         {
             result += processRow(item) + '\n';
         }
@@ -32,27 +49,38 @@ module.exports.process_verse = function process_verse(node) {
     return result;
 }
 
-module.exports.process_song = function process_song(doc) {
+function processSong(doc) {
 
     var result = '';
 
-    if (doc.title) {result += `Title: ${doc.title}\n`};
-    if (doc.subTitle) {result += `Subtitle: ${doc.subTitle}\n`};
-    if (doc.artist) {result += `Artist: ${doc.artist}\n`};
+    if (doc.header.title) {result += `Title: ${doc.header.title}\n`};
+    if (doc.header.subTitle) {result += `Subtitle: ${doc.header.subTitle}\n`};
+    if (doc.header.artist) {result += `Artist: ${doc.header.artist}\n`};
 
     // one empty line to separate metadata and song lyrics
     result += '\n';
 
-    // loop through song content item by item
-    for (let i = 0; i < doc.body.length; i++) {
-        let node = doc.body[i];
+    // loop through song content item by item (verses and choruses)
+    for (let i = 0; i < doc.content.length; i++) {
+        let node = doc.content[i];
 
-        if (node instanceof chordpro.NodeVerse) {
-            result += process_verse(node)
+        if (i > 0) {
+            result += '\n\n'
+        }
+
+        if (node.type == 'verse' || node.type == 'chorus') {
+            result += processVerse(node)
         }
         else {
-            //console.log(node);
+            // error ?
         }
+
     }
     return result;
+}
+
+module.exports = {
+    processSong,
+    processVerse,
+    processRow
 }

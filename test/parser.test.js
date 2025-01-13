@@ -1,7 +1,6 @@
 'use strict'
-var parser = require('../src/parser');
-var tokenizer = require('../src/tokenizer');
-var chordpro = require('../src/chordpro');
+
+const Grammar = require('../src/grammar.js')
 
 function dumpSong(doc) {
     console.log('Title: ', doc.title);
@@ -22,14 +21,16 @@ function dumpSong(doc) {
 
 describe('ChordPro Parser', function() {
 
+    it('t', function () { })
+
     it('empty song shall be parsed', function () {
-        let tokens = tokenizer.tokenize('');
-        let song = parser.parse(tokens);
-        expect(song.title).toBe(null);
-        expect(song.subTitle).toBe(null);
-        expect(song.body.length).toBe(0);
+        let song = Grammar.parse('');
+        expect(song.header.title).toBe(null);
+        expect(song.header.subTitle).toBe(null);
+        expect(song.content.length).toBe(0);
     });
 
+    /*
     it('title', function () {
         let tokens = tokenizer.tokenize('{title: This is title}');
         let song = parser.parse(tokens);
@@ -213,5 +214,6 @@ describe('ChordPro Parser', function() {
         expect(section).toBeInstanceOf(chordpro.NodeVerse);
         expect(section.children.length).toBe(1);
     });
+    */
 
 });

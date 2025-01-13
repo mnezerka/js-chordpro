@@ -1,6 +1,6 @@
 # ChordPro
 
-Javscript implementation of parser for song lyrics writted in  [ChordPro](https://www.chordpro.org/chordpro/ChordPro-File-Format-Specification.html) format.
+Javscript implementation of parser for song lyrics writted in  [ChordPro](https://www.chordpro.org/) format.
 
 The solution is based on wonderful tools [nearley parser](https://nearley.js.org/)
 and [moo lexer](https://github.com/no-context/moo).

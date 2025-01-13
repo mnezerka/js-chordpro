@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-const fs = require('fs')
-const ArgumentParser = require('argparse').ArgumentParser;
-const parser = require('./src/parser');
-const tokenizer = require('./src/tokenizer');
-const FormatterAscii = require('./src/FormatterAscii');
-const FormatterHtml = require('./src/FormatterHtml');
+const fs = require('fs');
+
+const ArgumentParser = require('argparse').ArgumentParser
+const Grammar = require('./src/grammar.js')
+const FormatterAscii = require('./src/formatter_ascii.js');
+const FormatterHtml = require('./src/formatter_html.js');
 
 var argParser = new ArgumentParser({
     version: '0.0.1',
@@ -18,7 +18,6 @@ argParser.addArgument('-f', {choices: ['text', 'html'], help: 'Output format', d
 argParser.addArgument('-o', {help: 'Output file name (without extension), default output is stdout'})
 
 var args = argParser.parseArgs();
-//console.dir(args);
 
 for (let f of args.files) {
     if (fs.existsSync(f)) {
@@ -26,7 +25,7 @@ for (let f of args.files) {
         let fContent = fs.readFileSync(f, "utf8");
 
         // parse song from chordpro format
-        let songDoc = parser.parse(tokenizer.tokenize(fContent))
+        let songDoc = Grammar.parse(fContent)
 
         // configure formatter
         let formatter
