@@ -14,6 +14,9 @@ describe('Parser', function() {
     it('works for title', function () {
         let song = Grammar.parse('{title: This is title}');
         expect(song.header.title).toBe('This is title');
+
+        song = Grammar.parse("{title: Dyin'}");
+        expect(song.header.title).toBe("Dyin'");
     });
 
     it('works for subtitle', function () {
@@ -118,6 +121,22 @@ describe('Parser', function() {
         expect(chorus.items[2].items.length).toBe(1)
         expect(chorus.items[2].items[0].type).toBe('text')
         expect(chorus.items[2].items[0].value).toBe('line3')
+    });
+
+    it('works for chorus long version', function () {
+
+        let song = Grammar.parse('{start_of_chorus}\nline1\n{end_of_chorus}');
+
+        expect(song.content.length).toBe(1);
+
+        let chorus = song.content[0];
+        expect(chorus.type).toBe('chorus')
+        expect(chorus.items.length).toBe(1);
+
+        expect(chorus.items[0].type).toBe('line')
+        expect(chorus.items[0].items.length).toBe(1)
+        expect(chorus.items[0].items[0].type).toBe('text')
+        expect(chorus.items[0].items[0].value).toBe('line1')
     });
 
     it('works for song with comments', function () {

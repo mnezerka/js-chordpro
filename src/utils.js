@@ -1,22 +1,22 @@
 //var chordpro = require('./chordpro');
 
-/*
-module.exports.transpose = function transpose(song, step) {
+function transpose(song, step) {
 
-    for (let bodyItem of song.body) {
+    for (let block of song.content) {
 
-        if (!(bodyItem instanceof chordpro.NodeVerse || !(bodyItem instanceof chordpro.NodeChord))) {
+        // ignore block types different from verse and chorus
+        if (!['verse', 'chorus'].includes(block.type)) {
             continue;
         }
 
-        for (let row of bodyItem.children) {
-            if (!(row instanceof chordpro.NodeRow)) {
+        for (let item of block.items) {
+            if (item.type != 'line') {
                 continue;
             }
 
-            for (let rowItem of row.children) {
-                if (rowItem instanceof chordpro.NodeChord) {
-                    transposeChord(rowItem, step);
+            for (let token of item.items) {
+                if (token.type == 'chord') {
+                    token.value = transposeChord(token.value, step);
                 }
             }
         }
@@ -26,12 +26,11 @@ module.exports.transpose = function transpose(song, step) {
     return song;
 }
 
-module.exports.transpose_chord = function transpose_chord(chordNode, step) {
-    //console.log('here', chordNode, step);
+
+function transposeChord(chord, step) {
     const roots = 'CDEFGAB';
     const steps = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 
-    let chord = chordNode.chord;
     if (chord.length < 1) { return; }
 
     let result = '';
@@ -78,7 +77,10 @@ module.exports.transpose_chord = function transpose_chord(chordNode, step) {
 
         result += steps[stepIndex];
     }
-    chordNode.chord = result;
-    //console.log('chord', chord, ' -> ', result);
+    return result
 }
-*/
+
+module.exports = {
+    transpose,
+    transposeChord
+}

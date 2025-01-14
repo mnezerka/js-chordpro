@@ -75,5 +75,5 @@ function processSong(song) {
 }
 
 module.exports = {
-    processSong,
+    processSong
 }

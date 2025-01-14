@@ -1,2 +1,5 @@
 src
 test
+*html
+*txt
+rollup.config.mjs

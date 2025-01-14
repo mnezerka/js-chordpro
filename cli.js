@@ -4,8 +4,8 @@ const fs = require('fs');
 const { version } = require('./package.json');
 const ArgumentParser = require('argparse').ArgumentParser
 const Grammar = require('./src/grammar.js')
-const FormatterAscii = require('./src/formatter_ascii.js');
-const FormatterHtml = require('./src/formatter_html.js');
+const FormatterAscii = require('./src/formatterAscii.js');
+const FormatterHtml = require('./src/formatterHtml.js');
 
 var argParser = new ArgumentParser({
     add_help: true,

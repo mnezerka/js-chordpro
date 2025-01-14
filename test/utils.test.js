@@ -1,48 +1,61 @@
-//import chordpro = require('../src/chordpro');
 var utils = require('../src/utils');
 
-describe('ChordPro Transpose', function() {
+describe('Transpose utility', function() {
 
-    it('simple chords', function () {
-        /*
-        let doc = new chordpro.NodeDoc();
-        let verse = new chordpro.NodeVerse();
-        doc.body.push(verse);
+    it('works for single chord', function () {
+        // zero step
+        expect(utils.transposeChord('C', 0)).toBe('C');
 
-        let row = new chordpro.NodeRow();
-        verse.children.push(row);
+        // 2 steps up
+        expect(utils.transposeChord('C', 2)).toBe('D');
+        expect(utils.transposeChord('Cmi', 2)).toBe('Dmi');
 
-        let chord = new chordpro.NodeChord('C D E F G A B');
-        row.children.push(chord);
+        // step up from #
+        expect(utils.transposeChord('F#', 1)).toBe('G');
+        expect(utils.transposeChord('F#mi', 1)).toBe('Gmi');
 
-        utils.transpose(doc, 2);
-
-        expect(chord.chord).toBe('D E F# G A B C#');
-
-        utils.transpose(doc, -4);
-
-        expect(chord.chord).toBe('Bb C D Eb F G A');
-        */
-
+        // step down to #
+        expect(utils.transposeChord('G', -1)).toBe('F#');
+        expect(utils.transposeChord('Gmi', -1)).toBe('F#mi');
     });
 
-    it('complex chords', function () {
-        /*
-        let doc = new chordpro.NodeDoc();
-        let verse = new chordpro.NodeVerse();
-        doc.body.push(verse);
 
-        let row = new chordpro.NodeRow();
-        verse.children.push(row);
+    it('works for multiple chords', function () {
+        // 2 steps up
+        expect(utils.transposeChord('C D E F G A B', 2)).toBe('D E F# G A B C#');
 
-        let chord = new chordpro.NodeChord('Cm7/5-');
-        row.children.push(chord);
-
-        utils.transpose(doc, 6);
-
-        expect(chord.chord).toBe('F#m7/5-');
-        */
+        // 2 steps down
+        expect(utils.transposeChord('C D E F G A B', -2)).toBe('Bb C D Eb F G A');
     });
 
+    it('works for complex chords', function () {
+        expect(utils.transposeChord('Cm7/5-', 6)).toBe('F#m7/5-');
+    });
+
+    it('works for song', function () {
+
+        let song = {
+            content: [
+                {
+                    type: 'verse',
+                    items: [
+                        {
+                            type: 'line',
+                            items: [
+                                {
+                                    type: 'chord',
+                                    value: 'C'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        utils.transpose(song, 2);
+
+        console.log(JSON.stringify(song))
+    });
 
 });

@@ -1,5 +1,5 @@
 const Grammar = require('../src/grammar.js')
-const FormatterAscii = require('../src/formatter_ascii.js');
+const FormatterAscii = require('../src/formatterAscii.js');
 
 describe('ChordPro Ascii Formatter', function() {
 

@@ -1,6 +1,6 @@
 {
   "name": "js-chordpro",
-  "version": "2.1.1",
+  "version": "2.1.3",
   "description": "ChordPro format parser",
   "main": "dist/js-chordpro.js",
   "repository": {
@@ -27,7 +27,7 @@
     "rollup-plugin-terser": "^7.0.2"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --verbose",
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "grammar": "npx peggy --format commonjs src/grammar.peggy"

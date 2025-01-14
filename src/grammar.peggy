@@ -18,15 +18,15 @@ dirend = (nl+ / !.)
 
 ////////////////// header one line directives
 
-Title = "{title:" " "? t:$[ a-zA-Z0-9]+ "}" dirend { return t }
+Title = "{title:" " "? t:$[^}]+ "}" dirend { return t }
 
-SubTitle = "{subtitle:" " "? t:$[ a-zA-Z0-9]+ "}" dirend { return t }
+SubTitle = "{subtitle:" " "? t:$[^}]+ "}" dirend { return t }
 
-Artist = "{artist:" " "? t:$[ a-zA-Z0-9]+ "}" dirend { return t }
+Artist = "{artist:" " "? t:$[^}]+ "}" dirend { return t }
 
 ////////////////// onther one line directives (not terminated by newline)
 
-Comment = ("{c:" / "{comment:") " "? t:$[ a-zA-Z0-9]+ "}" { return { type: 'comment', value: t };}
+Comment = ("{c:" / "{comment:") " "? t:$[^}]+ "}" { return { type: 'comment', value: t };}
 
 ////////////////// block directives
 
@@ -36,7 +36,7 @@ Block = Verse / Chorus / Comment
 
 Verse = items:ChordLines { return { type: "verse", items }; }
 
-Chorus = "{soc}" nl items:ChordLines nl "{eoc}" { return { type: "chorus", items: items }; }
+Chorus = "{" ("soc" / "start_of_chorus") "}" nl items:ChordLines nl "{" ("eoc" / "end_of_chorus") "}" { return { type: "chorus", items: items }; }
 
 // lines seperated by newline, final newline is not consumed
 ChordLines = first:ChordLine other:(nl l:ChordLine { return l })* { return [first].concat(other); }
@@ -47,5 +47,5 @@ ChordLine = items:(Chord / ChordLineText)+ { return { type: "line", items }; }
 // any text except end of line
 ChordLineText = t:$[^{[\n\r]+ { return { type: "text", value: t }; }
 
-// chord must start with capital letter and continue with any letter, number of special symbol
-Chord = "[" ch:$([A-Z]+ [ A-Za-z1-9#b/\-]*) "]" { return { type: "chord", value: ch}; }
+// chord must start with capital letter and continue with anything except closing bracket
+Chord = "[" ch:$([A-Z]+ [^\]]*) "]" { return { type: "chord", value: ch}; }
