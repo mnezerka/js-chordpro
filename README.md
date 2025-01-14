@@ -2,9 +2,6 @@
 
 Javscript implementation of parser for song lyrics writted in  [ChordPro](https://www.chordpro.org/) format.
 
-The solution is based on wonderful tools [nearley parser](https://nearley.js.org/)
-and [moo lexer](https://github.com/no-context/moo).
-
 ## How to build and deploy
 
 Install dependences:
@@ -13,7 +10,7 @@ npm install
 ```
 Compile grammar to js: 
 ```
-npx nearly src/grammar.ns -o src/grammar.js
+npm run grammar
 ```
 Start development mode (package is built on each change in source code):
 ```bash
@@ -112,7 +109,7 @@ with [G]chords
 `;
 
 // tokenize and parse song into in-memory song document structure
-let parsed = jschordpro.parse(song_chordpro + "\n")
+let parsed = jschordpro.parse(song_chordpro)
 
 // render in-memory song document to html
 let html = jschordpro.to_html(doc);

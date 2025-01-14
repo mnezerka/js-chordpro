@@ -4,9 +4,9 @@
 // https://peggyjs.org/online.html
 // ----------------
 
-All = header:Header content:Content { return { header, content}}
+All = header:Header content:(Content / (!. { return '';})) { return { header, content}}
 
-Header = t:Title? st:SubTitle? a: Artist? { return { title: t, subtitle: st, artist: a }; }
+Header = title:Title? subTitle:SubTitle? artist: Artist? { return { title, subTitle, artist }; }
 
 ////////////////// basic tokens
 
@@ -14,19 +14,25 @@ _ "whitespace" = [ \t]*
 
 nl = [\n\r]
 
-////////////////// one line directives
+dirend = (nl+ / !.)
 
-Title = "{title:" " "? t:$[ a-zA-Z0-9]+ "}" nl+ { return t }
+////////////////// header one line directives
 
-SubTitle = "{subtitle:" " "? t:$[ a-zA-Z0-9]+ "}" nl+ { t }
+Title = "{title:" " "? t:$[ a-zA-Z0-9]+ "}" dirend { return t }
 
-Artist = "{artist:" " "? t:$[ a-zA-Z0-9]+ "}" nl+ { t }
+SubTitle = "{subtitle:" " "? t:$[ a-zA-Z0-9]+ "}" dirend { return t }
+
+Artist = "{artist:" " "? t:$[ a-zA-Z0-9]+ "}" dirend { return t }
+
+////////////////// onther one line directives (not terminated by newline)
+
+Comment = ("{c:" / "{comment:") " "? t:$[ a-zA-Z0-9]+ "}" { return { type: 'comment', value: t };}
 
 ////////////////// block directives
 
 Content = first:Block other:(nl nl+ b:Block { return b })* ws:(!. / (nl+ / !.)) { return [first].concat(other) }
 
-Block = Verse / Chorus
+Block = Verse / Chorus / Comment
 
 Verse = items:ChordLines { return { type: "verse", items }; }
 
