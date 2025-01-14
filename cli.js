@@ -1,23 +1,23 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
-
+const { version } = require('./package.json');
 const ArgumentParser = require('argparse').ArgumentParser
 const Grammar = require('./src/grammar.js')
 const FormatterAscii = require('./src/formatter_ascii.js');
 const FormatterHtml = require('./src/formatter_html.js');
 
 var argParser = new ArgumentParser({
-    version: '0.0.1',
-    addHelp: true,
+    add_help: true,
     description: 'Tool for processing song lyrics stored in ChordPro format'
 });
 
-argParser.addArgument('files', {help: 'chordpro files to be processed', nargs: '+'});
-argParser.addArgument('-f', {choices: ['text', 'html'], help: 'Output format', defaultValue: 'text'});
-argParser.addArgument('-o', {help: 'Output file name (without extension), default output is stdout'})
+argParser.add_argument('files', {help: 'chordpro files to be processed', nargs: '+'});
+argParser.add_argument('-f', {choices: ['text', 'html'], help: 'Output format', default: 'text'});
+argParser.add_argument('-o', {help: 'Output file name (without extension), default output is stdout'})
+argParser.add_argument('--version', { action: 'version', version });
 
-var args = argParser.parseArgs();
+var args = argParser.parse_args();
 
 for (let f of args.files) {
     if (fs.existsSync(f)) {
