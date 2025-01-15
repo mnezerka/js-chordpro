@@ -19,13 +19,16 @@ describe('Transpose utility', function() {
         expect(utils.transposeChord('Gmi', -1)).toBe('F#mi');
     });
 
-
     it('works for multiple chords', function () {
         // 2 steps up
         expect(utils.transposeChord('C D E F G A B', 2)).toBe('D E F# G A B C#');
 
         // 2 steps down
         expect(utils.transposeChord('C D E F G A B', -2)).toBe('Bb C D Eb F G A');
+    });
+
+    it('works for alternative roots', function () {
+        expect(utils.transposeChord('Db D# Gb G# A#', 1)).toBe('D E G A B');
     });
 
     it('works for complex chords', function () {

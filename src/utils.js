@@ -29,7 +29,8 @@ function transpose(song, step) {
 
 function transposeChord(chord, step) {
     const roots = 'CDEFGAB';
-    const steps = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+    const steps =    ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+    const stepsAlt = ['C', 'Db', 'D', 'D#', 'E', 'F', 'Gb', 'G', 'G#', 'A', 'A#', 'B'];
 
     if (chord.length < 1) { return; }
 
@@ -61,9 +62,13 @@ function transposeChord(chord, step) {
 
         // look for step
         let stepIndex = steps.indexOf(root);
-
         if (stepIndex === -1) {
-            console.error('Unknown chord root', root);  //eslint-disable-line no-console
+            // try alternative chord names
+            stepIndex = stepsAlt.indexOf(root);
+
+            if (stepIndex === -1) {
+                console.error('Unknown chord root', root);  //eslint-disable-line no-console
+            }
 
         }
 
