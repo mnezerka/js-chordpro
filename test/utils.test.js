@@ -57,8 +57,6 @@ describe('Transpose utility', function() {
         }
 
         utils.transpose(song, 2);
-
-        console.log(JSON.stringify(song))
     });
 
 });

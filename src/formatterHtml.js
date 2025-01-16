@@ -55,11 +55,16 @@ function processContentBlock(block) {
 function processSong(song) {
     var result = '<div class="jschordpro-song">\n\n';
 
-    result += '<div class="header">\n';
-    if (song.header.title && song.header.title.length > 0) { result += `<h1>${song.header.title}</h1>\n` };
-    if (song.header.subtitle && song.header.subTitle.length > 0) { result += `<h2>${song.header.subTitle}</h2>\n` };
-    if (song.header.artist && song.header.artist.length > 0) { result += `<h2>${song.header.artist}</h2>\n` };
-    result += '</div>\n\n'; // header
+    let h = ""
+    if (song.header.title && song.header.title.length > 0) { h += `<h1>${song.header.title}</h1>\n` };
+    if (song.header.subtitle && song.header.subTitle.length > 0) { h += `<h2>${song.header.subTitle}</h2>\n` };
+    if (song.header.artist && song.header.artist.length > 0) { h += `<h2>${song.header.artist}</h2>\n` };
+
+    if (h) {
+        result += '<div class="header">\n';
+        result += h;
+        result += '</div>\n\n'; // header
+    }
 
     // loop through song content item by item
     result += '<div class="content">\n';
