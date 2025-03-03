@@ -1,5 +1,17 @@
 
-function processLine(line) {
+function blockHasChords(block) {
+    for (let i = 0; i < block.items.length; i++) {
+        let line = block.items[i];
+        for (let j = 0; j < line.items.length; j++) {
+            if (line.items[j].type === "chord") {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function processLine(line, hasChords) {
     let chords = [];
     let lyrics = [];
     let last_chord = null;
@@ -23,9 +35,7 @@ function processLine(line) {
     let result = '<table class="line">';
 
     // chords line
-    // check if there is at least one real chord in a line
-    let chords_real = chords.filter(c => c !== "")
-    if (chords_real.length > 0) {
+    if (hasChords) {
         result += '<tr class="line-chords">';
         result += chords.map(c => `<td class="chord">${c}</td>`).join("\n");
         result += '</tr>';
@@ -42,10 +52,12 @@ function processLine(line) {
 }
 
 function processContentBlock(block) {
+    let hasChords = blockHasChords(block);
+
     let result = `<div class="${block.type}">\n`;
     for (let i = 0; i < block.items.length; i++) {
         let line = block.items[i];
-        result += processLine(line);
+        result += processLine(line, hasChords);
     }
     result += '</div>'; // verse
 
