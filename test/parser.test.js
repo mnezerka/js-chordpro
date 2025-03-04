@@ -2,31 +2,74 @@
 
 const Grammar = require('../src/grammar.js')
 
+const metaTags = [
+    "composer",
+    "lyricist",
+    "copyright",
+    "album",
+    "year",
+    "key",
+    "capo",
+    "time",
+    "tempo",
+    "duration"
+]
+
 describe('Parser', function() {
 
     it('works for empty song', function () {
         let song = Grammar.parse('');
-        expect(song.header.title).toBe(null);
-        expect(song.header.subTitle).toBe(null);
+        expect(song.header).toBe(null);
         expect(song.content.length).toBe(0);
     });
 
     it('works for title', function () {
         let song = Grammar.parse('{title: This is title}');
-        expect(song.header.title).toBe('This is title');
+        expect(song.header[0]).toStrictEqual({type: 'title', value: 'This is title'});
 
         song = Grammar.parse("{title: Dyin'}");
-        expect(song.header.title).toBe("Dyin'");
+        expect(song.header[0]).toStrictEqual({type: 'title', value: "Dyin'"});
+
+        // short formt
+        song = Grammar.parse('{t: This is title}');
+        expect(song.header[0]).toStrictEqual({type: 'title', value: 'This is title'});
+
+        // meta
+        song = Grammar.parse('{meta: title This is title}');
+        expect(song.header[0]).toStrictEqual({type: 'title', value: 'This is title'});
     });
 
     it('works for subtitle', function () {
         let song = Grammar.parse('{subtitle: This is subtitle}');
-        expect(song.header.subTitle).toBe('This is subtitle');
+        expect(song.header[0]).toStrictEqual({type: 'subtitle', value: 'This is subtitle'});
+
+        // short form
+        song = Grammar.parse('{st: This is subtitle}');
+        expect(song.header[0]).toStrictEqual({type: 'subtitle', value: 'This is subtitle'});
+
+        // meta
+        song = Grammar.parse('{meta: subtitle This is subtitle}');
+        expect(song.header[0]).toStrictEqual({type: 'subtitle', value: 'This is subtitle'});
     });
 
     it('works for artist', function () {
         let song = Grammar.parse('{artist: This is artist}');
-        expect(song.header.artist).toBe('This is artist');
+        expect(song.header[0]).toStrictEqual({type: 'artist', value: 'This is artist'});
+
+        // meta
+        song = Grammar.parse('{meta: artist This is artist}');
+        expect(song.header[0]).toStrictEqual({type: 'artist', value: 'This is artist'});
+    });
+
+    it.each(metaTags)('works for meta tag %s', function (tag) {
+
+        let songRaw = '{' + tag +': This is ' + tag + '}';
+        let song = Grammar.parse(songRaw);
+        expect(song.header).toContainEqual({type: tag, value: 'This is ' + tag});
+
+        // meta
+        song = Grammar.parse('{meta: ' + tag + ' This is ' + tag + '}');
+        expect(song.header).toContainEqual({type: tag, value: 'This is ' + tag});
     });
 
     it('works for single line verse without chords', function () {
@@ -139,6 +182,22 @@ describe('Parser', function() {
         expect(chorus.items[0].items[0].value).toBe('line1')
     });
 
+    it('works for tab section', function () {
+
+        let song = Grammar.parse('{start_of_tab}\n---\n-2-\n-3-\n{end_of_tab}');
+
+        expect(song.content.length).toBe(1);
+
+        let tab = song.content[0];
+        expect(tab.type).toBe('tab')
+        expect(tab.items.length).toBe(3);
+
+        expect(tab.items[0]).toBe('---')
+        expect(tab.items[1]).toBe('-2-')
+        expect(tab.items[2]).toBe('-3-')
+    });
+
+
     it('works for song with comments', function () {
         let song = Grammar.parse('{c: some comment}\n\nsome verse\n\n{comment: second comment}');
 
@@ -167,8 +226,9 @@ describe('Parser', function() {
 
         let song = Grammar.parse(songStr);
 
-        expect(song.header.title).toBe('Song title');
-        expect(song.header.subTitle).toBe('Song subtitle');
+        expect(song.header).toContainEqual({type: 'title', value: 'Song title'});
+        expect(song.header).toContainEqual({type: 'subtitle', value: 'Song subtitle'});
+
         expect(song.content.length).toBe(3);
 
         expect(song.content[0].type).toBe('verse')

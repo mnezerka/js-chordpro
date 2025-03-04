@@ -51,7 +51,6 @@ describe('ChordPro HTML formatter', function() {
         const song_doc = Grammar.parse(song_chordpro)
 
         const song_html = FormatterHtml.processSong(song_doc);
-        console.log(song_html);
 
         const dom = new JSDOM(song_html);
         const doc = dom.window.document;

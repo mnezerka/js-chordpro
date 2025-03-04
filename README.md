@@ -29,19 +29,19 @@ Preamble directives
 
 Meta-data directives
 
-- [x] `title`, `t`
+- [x] `title`, `t`, `meta: title`
 - [x] `subtitle`, `st`
-- [x] `artist`
-- [ ] `composer`
-- [ ] `lyricist`
-- [ ] `copyright`
-- [ ] `album`
-- [ ] `year`
-- [ ] `key`
-- [ ] `time`
-- [ ] `tempo`
-- [ ] `duration`
-- [ ] `capo`
+- [x] `artist`, `meta: artist`
+- [x] `composer`, `meta: composer`
+- [x] `lyricist`, `meta: lyricist`
+- [x] `copyright`, `meta: copyright`
+- [x] `album`, `meta: album`
+- [x] `year`, `meta: year`
+- [x] `key`, `meta: key`
+- [x] `time`, `meta: time`
+- [x] `tempo`, `meta: tempo`
+- [x] `duration`, `meta: duration`
+- [x] `capo`, `meta: capo`
 - [ ] `meta`
 
 Formatting directives
@@ -58,8 +58,8 @@ Environment directives
 - [ ] `chorus`
 - [ ] `start_of_verse`
 - [ ] `end_of_verse`
-- [ ] `start_of_tab`, `sot)`
-- [ ] `end_of_tab`, `eot)`
+- [x] `start_of_tab`, `sot)`
+- [x] `end_of_tab`, `eot)`
 - [ ] `start_of_grid`
 - [ ] `end_of_grid`
 

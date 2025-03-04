@@ -68,9 +68,33 @@ function processSong(song) {
     var result = '<div class="jschordpro-song">\n\n';
 
     let h = ""
-    if (song.header.title && song.header.title.length > 0) { h += `<h1>${song.header.title}</h1>\n` };
-    if (song.header.subtitle && song.header.subTitle.length > 0) { h += `<h2>${song.header.subTitle}</h2>\n` };
-    if (song.header.artist && song.header.artist.length > 0) { h += `<h2>${song.header.artist}</h2>\n` };
+    if (song.header) {
+        for (let i = 0; i < song.header.length; i++) {
+            let item = song.header[i]
+
+            switch (item.type) {
+                case 'title':
+                    h += `<h1 class="${item.type}">${item.value}</h1>\n`
+                    break;
+                case 'subtitle':
+                case 'artist':
+                case 'composer':
+                case 'lyricist':
+                case 'copyright':
+                case 'album':
+                case 'year':
+                case 'key':
+                case 'capo':
+                case 'time':
+                case 'tempo':
+                case 'duration':
+                    h += `<h2 class="${item.type}">${item.value}</h2>\n`
+                    break;
+                default:
+                    console.warn(`no formatting defined for header item of type "${item.type}".`);
+            }
+        }
+    }
 
     if (h) {
         result += '<div class="header">\n';

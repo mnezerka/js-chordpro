@@ -53,9 +53,23 @@ function processSong(doc) {
 
     var result = '';
 
-    if (doc.header.title) {result += `Title: ${doc.header.title}\n`};
-    if (doc.header.subTitle) {result += `Subtitle: ${doc.header.subTitle}\n`};
-    if (doc.header.artist) {result += `Artist: ${doc.header.artist}\n`};
+    if (doc.header) {
+        for (let i = 0; i < doc.header.length; i++) {
+            let item = doc.header[i]
+
+            switch (item.type) {
+                case 'title':
+                    result += `Title: ${item.value}\n`;
+                    break;
+                case 'subtitle':
+                    result += `Subtitle: ${item.value}\n`;
+                    break;
+                case 'artist':
+                    result += `Artist: ${item.value}\n`;
+                    break;
+            }
+        }
+    }
 
     // one empty line to separate metadata and song lyrics
     result += '\n';
