@@ -79,4 +79,47 @@ describe('ChordPro HTML formatter', function() {
         expect(lines[2].getElementsByClassName("line-lyrics").length).toBe(1)
     });
 
+    it('works for comments', function () {
+
+        const song_chordpro = '{c: some comment}\n\n';
+        const song_doc = Grammar.parse(song_chordpro)
+        const song_html = FormatterHtml.processSong(song_doc);
+        const dom = new JSDOM(song_html);
+        const doc = dom.window.document;
+
+        expect(doc.getElementsByClassName("content").length).toBe(1)
+
+        const comments = doc.getElementsByClassName("comment")
+        expect(comments.length).toBe(1)
+
+        const comment = comments[0];
+        expect(comment.textContent.trim()).toBe('some comment')
+    });
+
+    it('works for tabs', function () {
+
+        const song_chordpro =
+            '{start_of_tab}\n' +
+            '--2-------6------\n' +
+            '----3---5--------\n' +
+            '------4----------\n' +
+            '{end_of_tab}\n';
+
+        const song_doc = Grammar.parse(song_chordpro)
+        const song_html = FormatterHtml.processSong(song_doc);
+        const dom = new JSDOM(song_html);
+        const doc = dom.window.document;
+
+        const tabs= doc.getElementsByClassName("tab")
+        expect(tabs.length).toBe(1)
+
+        const tab = tabs[0];
+        const expected =
+            '--2-------6------\n' +
+            '----3---5--------\n' +
+            '------4----------';
+
+        expect(tab.textContent.trim()).toBe(expected);
+    });
+
 });

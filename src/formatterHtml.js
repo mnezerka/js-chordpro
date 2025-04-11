@@ -1,5 +1,9 @@
 
 function blockHasChords(block) {
+    if (!block.items) {
+        return false;
+    }
+
     for (let i = 0; i < block.items.length; i++) {
         let line = block.items[i];
         for (let j = 0; j < line.items.length; j++) {
@@ -64,6 +68,26 @@ function processContentBlock(block) {
     return result;
 }
 
+function processComment(item) {
+
+    let result = `<div class="${item.type}">\n`;
+    result += item.value + '\n';
+    result += '</div>\n';
+
+    return result;
+}
+
+function processTab(tab) {
+
+    let result = `<div class="${tab.type}">\n`;
+    for (let i = 0; i < tab.items.length; i++) {
+        result += tab.items[i] + '\n';
+    }
+    result += '</div>'; // verse
+
+    return result;
+}
+
 function processSong(song) {
     var result = '<div class="jschordpro-song">\n\n';
 
@@ -105,8 +129,17 @@ function processSong(song) {
     // loop through song content item by item
     result += '<div class="content">\n';
     for (let i = 0; i < song.content.length; i++) {
-        let block = song.content[i];
-        result += processContentBlock(block)
+        let item = song.content[i];
+        switch (item.type) {
+            case 'comment':
+                result += processComment(item)
+                break;
+            case 'tab':
+                result += processTab(item)
+                break;
+            default:
+                result += processContentBlock(item)
+        }
     }
     result += '</div>\n'; // content
 
