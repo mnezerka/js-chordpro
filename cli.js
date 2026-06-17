@@ -74,7 +74,7 @@ for (let arg of args.files) {
             } else {
                 console.error(`Error parsing ${f}: ${err.message}`);
             }
-            continue;
+            process.exit(1);
         }
 
         // extract title for sorting
