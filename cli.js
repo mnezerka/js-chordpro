@@ -56,7 +56,7 @@ for (let arg of args.files) {
 
     for (let f of filesToProcess) {
         console.log(`Reading ${f}`);
-        let fContent = fs.readFileSync(f, "utf8").replace(/^\uFEFF/, '');
+        let fContent = fs.readFileSync(f, "utf8").replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
         // parse song from chordpro format
         let songDoc;
