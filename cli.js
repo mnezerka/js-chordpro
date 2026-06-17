@@ -100,6 +100,47 @@ if (args.sort) {
 
 // write all output to file or console
 let result = results.map(r => r.output).join('\n');
+if (args.f === 'html') {
+    result = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChordPro Song</title>
+<style>
+  table {
+    border-collapse: collapse;
+  }
+
+  td {
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+  }
+
+  tr.line-chords {
+    font-weight: bold;
+  }
+
+  .chord {
+    padding-top: 3px;
+    padding-right: 5px;
+  }
+
+  .verse, .chorus {
+    margin-bottom: 20px;
+  }
+
+  .chorus {
+    margin-left: 30px;
+  }
+</style>
+</head>
+<body>
+${result}
+</body>
+</html>`;
+}
 if (args.o) {
     fs.writeFileSync(args.o, result, "utf8");
 } else {
