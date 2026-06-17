@@ -59,7 +59,23 @@ for (let arg of args.files) {
         let fContent = fs.readFileSync(f, "utf8");
 
         // parse song from chordpro format
-        let songDoc = Grammar.parse(fContent)
+        let songDoc;
+        try {
+            songDoc = Grammar.parse(fContent);
+        } catch (err) {
+            if (err.name === 'SyntaxError' && err.location) {
+                const loc = err.location.start;
+                const lines = fContent.split('\n');
+                const contextLine = lines[loc.line - 1] || '';
+                console.error(`Error parsing ${f}:`);
+                console.error(`  Line ${loc.line}, column ${loc.column}: ${err.message}`);
+                console.error(`  ${contextLine}`);
+                console.error(`  ${' '.repeat(Math.max(0, loc.column - 1))}^`);
+            } else {
+                console.error(`Error parsing ${f}: ${err.message}`);
+            }
+            continue;
+        }
 
         // extract title for sorting
         let title = '';
