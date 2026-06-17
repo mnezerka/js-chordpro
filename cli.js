@@ -16,6 +16,7 @@ var argParser = new ArgumentParser({
 argParser.add_argument('files', {help: 'chordpro files or directories to be processed', nargs: '+'});
 argParser.add_argument('-f', {choices: ['text', 'html'], help: 'Output format', default: 'text'});
 argParser.add_argument('-o', {help: 'Output file name (without extension), default output is stdout'})
+argParser.add_argument('--sort', {help: 'Sort songs by title', action: 'store_true'});
 argParser.add_argument('--version', { action: 'version', version });
 
 var args = argParser.parse_args();
@@ -31,7 +32,7 @@ switch(args.f) {
         formatter = FormatterAscii;
 }
 
-let allOutputs = [];
+let results = [];
 
 for (let arg of args.files) {
     if (!fs.existsSync(arg)) {
@@ -60,14 +61,29 @@ for (let arg of args.files) {
         // parse song from chordpro format
         let songDoc = Grammar.parse(fContent)
 
+        // extract title for sorting
+        let title = '';
+        if (songDoc.header) {
+            for (let item of songDoc.header) {
+                if (item.type === 'title') {
+                    title = item.value;
+                    break;
+                }
+            }
+        }
+
         // format document
         let output = formatter.processSong(songDoc);
-        allOutputs.push(output);
+        results.push({title, output});
     }
 }
 
+if (args.sort) {
+    results.sort((a, b) => a.title.localeCompare(b.title));
+}
+
 // write all output to file or console
-let result = allOutputs.join('\n');
+let result = results.map(r => r.output).join('\n');
 if (args.o) {
     fs.writeFileSync(args.o, result, "utf8");
 } else {
