@@ -19,6 +19,7 @@ argParser.add_argument('-o', {help: 'Output file name (without extension), defau
 argParser.add_argument('--sort', {help: 'Sort songs by title', action: 'store_true'});
 argParser.add_argument('--toc', {help: 'Generate table of contents from song titles (HTML output only)', action: 'store_true'});
 argParser.add_argument('--theme', {choices: ['basic'], help: 'Apply a predefined CSS theme (HTML output only)'});
+argParser.add_argument('--interactive', {help: 'Embed library and song data for in-browser transposition (HTML output only)', action: 'store_true'});
 argParser.add_argument('--version', { action: 'version', version });
 
 var args = argParser.parse_args();
@@ -91,8 +92,8 @@ for (let arg of args.files) {
         }
 
         // format document
-        let output = formatter.processSong(songDoc);
-        results.push({title, output});
+        let output = args.interactive ? null : formatter.processSong(songDoc);
+        results.push({title, output, songDoc: args.interactive ? songDoc : null});
     }
 }
 
@@ -173,23 +174,32 @@ const THEMES = {
 };
 
 // write all output to file or console
-let result = results.map(r => r.output).join('\n');
+let result = args.interactive ? '' : results.map(r => r.output).join('\n');
 if (args.f === 'html') {
     const themeStyles = args.theme ? THEMES[args.theme] : '';
 
-    let tocHtml = '';
-    if (args.toc) {
-        // assign anchors based on current (possibly sorted) song order
+    // assign anchors for toc and/or interactive mode
+    if (args.toc || args.interactive) {
         results.forEach((r, i) => {
-            const anchor = `song-${i + 1}`;
-            r.anchor = anchor;
-            if (r.title) {
+            r.anchor = `song-${i + 1}`;
+            if (!args.interactive) {
                 r.output = r.output.replace(
                     '<div class="jschordpro-song">',
-                    `<div class="jschordpro-song" id="${anchor}">`
+                    `<div class="jschordpro-song" id="${r.anchor}">`
                 );
             }
         });
+        if (!args.interactive) {
+            result = results.map(r => r.output).join('\n');
+        }
+    }
+
+    if (args.interactive) {
+        result = results.map(r => `<div class="jschordpro-song" id="${r.anchor}"></div>`).join('\n');
+    }
+
+    let tocHtml = '';
+    if (args.toc) {
         const tocItems = results
             .filter(r => r.title)
             .sort((a, b) => a.title.localeCompare(b.title))
@@ -198,8 +208,61 @@ if (args.f === 'html') {
         if (tocItems) {
             tocHtml = `<nav class="toc">\n<ul>\n${tocItems}\n</ul>\n</nav>\n`;
         }
-        // rebuild result after injecting anchors
-        result = results.map(r => r.output).join('\n');
+    }
+
+    const CLIENT_UI_JS = `(function(){
+  var offsets=[];
+  var songs=JSON.parse(document.getElementById('jschordpro-data').textContent);
+  songs.forEach(function(){offsets.push(0);});
+  function formatOffset(n){return n===0?'0':(n>0?'+':'')+n;}
+  function deepClone(o){return JSON.parse(JSON.stringify(o));}
+  function rerenderSong(index){
+    var entry=songs[index],offset=offsets[index];
+    var cloned=deepClone(entry.ast);
+    if(offset!==0)window.jschordpro.transpose(cloned,offset);
+    var songEl=document.getElementById(entry.id);
+    var tmp=document.createElement('div');
+    tmp.innerHTML=window.jschordpro.to_html(cloned);
+    var newSong=tmp.querySelector('.jschordpro-song');
+    newSong.id=entry.id;
+    var controls=document.createElement('div');
+    controls.className='transpose-controls';
+    controls.dataset.songIndex=index;
+    controls.innerHTML='<button class="transpose-down">&#x25BC;</button><span class="transpose-offset">'+formatOffset(offset)+'</span><button class="transpose-up">&#x25B2;</button>';
+    newSong.insertBefore(controls,newSong.querySelector('.content'));
+    songEl.parentNode.replaceChild(newSong,songEl);
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    songs.forEach(function(_,i){rerenderSong(i);});
+  });
+  document.addEventListener('click',function(e){
+    var btn=e.target.closest('.transpose-up,.transpose-down');
+    if(!btn)return;
+    var controls=btn.closest('.transpose-controls');
+    if(!controls)return;
+    var index=parseInt(controls.dataset.songIndex,10);
+    if(isNaN(index))return;
+    var delta=btn.classList.contains('transpose-up')?1:-1;
+    offsets[index]=(offsets[index]+delta+12)%12;
+    if(offsets[index]>6)offsets[index]-=12;
+    rerenderSong(index);
+  });
+})();`;
+
+    let interactiveHtml = '';
+    if (args.interactive) {
+        const libSource = fs.readFileSync(path.join(__dirname, 'dist', 'js-chordpro.js'), 'utf8');
+        const libScript = `<script>\n(function(){\nvar exports={};\n${libSource}\nwindow.jschordpro=exports.default;\n})();\n</script>`;
+        const songsJson = JSON.stringify(
+            results.map((r, i) => ({
+                id: r.anchor || `song-${i + 1}`,
+                title: r.title,
+                ast: r.songDoc
+            }))
+        ).replace(/<\/script>/gi, '<\\/script>');
+        const dataScript = `<script id="jschordpro-data" type="application/json">\n${songsJson}\n</script>`;
+        const uiScript = `<script>\n${CLIENT_UI_JS}\n</script>`;
+        interactiveHtml = `\n${libScript}\n${dataScript}\n${uiScript}\n`;
     }
 
     result = `<!DOCTYPE html>
@@ -235,10 +298,38 @@ if (args.f === 'html') {
   .chorus {
     margin-left: 30px;
   }
+
+  .transpose-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 10px 0;
+  }
+
+  .transpose-controls button {
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 14px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background: #f0f0f0;
+  }
+
+  .transpose-controls button:hover {
+    background: #ddd;
+  }
+
+  .transpose-offset {
+    min-width: 28px;
+    text-align: center;
+    font-family: monospace;
+    font-size: 14px;
+  }
 ${themeStyles}</style>
 </head>
 <body>
-${tocHtml}${result}
+${tocHtml}${result}${interactiveHtml}
 </body>
 </html>`;
 }
